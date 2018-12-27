@@ -1,6 +1,13 @@
 #!/bin/bash
 #sudo dpkg-reconfigure -f noninteractive tzdata
 
+## if WIFI_IF was not specified, we'll take the first one to appear
+shopt -s nullglob
+while [[ -z "${WIFI_IF}" ]]; do
+    sleep 1;
+    WIFI_IF=$(echo /sys/class/net/*/wireless | cut -d/ -f 5);
+done
+
 cat <<EOF > /etc/network/interfaces
 iface ${WIFI_IF} inet static
     address 192.168.111.1/24
@@ -30,7 +37,9 @@ wmm_enabled=1
 
 # First AP
 ssid=test0
-# since there is no encryption defined, none will be used
+# if there is no encryption defined, none will be used
+#wpa=1
+#wpa_passphrase=testpwd1
 EOF
 
 cat <<EOF > /etc/dnsmasq.conf
@@ -60,6 +69,7 @@ dhcp-range=192.168.111.50,192.168.111.200,12h
 EOF
 
 while [[ ! $(ip addr show dev ${WIFI_IF}) ]]; do sleep 1; done
+
 ifup ${WIFI_IF} || exit 1
 dnsmasq #--log-dhcp
 
