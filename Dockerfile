@@ -13,6 +13,6 @@ RUN DEBIAN_FRONTEND=noninteractive apt-get -y install iw tcpdump tmux
 #COPY interfaces /etc/network/interfaces
 COPY container_init.sh /
 
-HEALTHCHECK --interval=15s --retries=1 --start-period=1m CMD iw dev ${WIFI_IF} info | grep -q 'type AP'
+HEALTHCHECK --interval=15s --retries=1 --start-period=1m CMD iw dev | grep -q 'type AP'
 
 CMD /container_init.sh
